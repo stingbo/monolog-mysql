@@ -1,13 +1,13 @@
 {
-    "name": "wazaari/monolog-mysql",
-    "description": "A handler for Monolog that sends messages to MySQL",
+    "name": "stingbo/monolog-mysql",
+    "description": "A handler for Monolog that sends messages to MySQL,Fork from wazaari",
     "keywords": ["log", "logging", "monolog", "mysql", "database"],
-    "homepage": "https://github.com/waza-ari/monolog-mysql",
+    "homepage": "https://github.com/stingbo/monolog-mysql",
     "license": "MIT",
     "authors": [
         {
-            "name": "Daniel Herrmann",
-            "email": "daniel.herrmann1@gmail.com"
+            "name": "stingbo",
+            "email": "lianbo.wan@gmail.com"
         }
     ],
     "require": {

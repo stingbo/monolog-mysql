@@ -11,7 +11,7 @@ Homepage: http://www.d-herrmann.de/projects/monolog-mysql-handler/
 monolog-mysql is available via composer. Just add the following line to your required section in composer.json and do a `php composer.phar update`.
 
 ```
-"wazaari/monolog-mysql": ">1.0.0"
+"stingbo/monolog-mysql": ">1.0.0"
 ```
 
 # Usage

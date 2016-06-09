@@ -12,7 +12,7 @@ use PDOStatement;
  * to write records in a MySQL table
  *
  * Class MySQLHandler
- * @package wazaari\MysqlHandler
+ * @package stingbo\MysqlHandler
  */
 class MySQLHandler extends AbstractProcessingHandler
 {
@@ -45,6 +45,7 @@ class MySQLHandler extends AbstractProcessingHandler
      * as the values are stored in the column name $field.
      */
     private $additionalFields = array();
+    private $additionalFieldsDescription = array();
 
     /**
      * Constructor of this class, sets the PDO and calls parent constructor
@@ -60,13 +61,15 @@ class MySQLHandler extends AbstractProcessingHandler
         $table,
         $additionalFields = array(),
         $level = Logger::DEBUG,
-        $bubble = true
+        $bubble = true,
+        $descriptions = array()
     ) {
         if (!is_null($pdo)) {
             $this->pdo = $pdo;
         }
         $this->table = $table;
         $this->additionalFields = $additionalFields;
+        $this->additionalFieldsDescription = $descriptions;
         parent::__construct($level, $bubble);
     }
 
@@ -77,10 +80,10 @@ class MySQLHandler extends AbstractProcessingHandler
     {
         $this->pdo->exec(
             'CREATE TABLE IF NOT EXISTS `'.$this->table.'` '
-            .'(channel VARCHAR(255), level INTEGER, message LONGTEXT, time INTEGER UNSIGNED)'
+            .'(id INTEGER UNSIGNED NOT NULL AUTO_INCREMENT, PRIMARY KEY(id), channel VARCHAR(255), level INTEGER, message LONGTEXT, time INTEGER UNSIGNED)'
         );
 
-        //Read out actual columns
+        // Read out actual columns
         $actualFields = array();
         $rs = $this->pdo->query('SELECT * FROM `'.$this->table.'` LIMIT 0');
         for ($i = 0; $i < $rs->columnCount(); $i++) {
@@ -88,29 +91,34 @@ class MySQLHandler extends AbstractProcessingHandler
             $actualFields[] = $col['name'];
         }
 
-        //Calculate changed entries
+        // Calculate changed entries
         $removedColumns = array_diff(
             $actualFields,
             $this->additionalFields,
-            array('channel', 'level', 'message', 'time')
+            array('id', 'channel', 'level', 'message', 'time')
         );
         $addedColumns = array_diff($this->additionalFields, $actualFields);
 
-        //Remove columns
+        // Remove columns
         if (!empty($removedColumns)) {
             foreach ($removedColumns as $c) {
                 $this->pdo->exec('ALTER TABLE `'.$this->table.'` DROP `'.$c.'`;');
             }
         }
 
-        //Add columns
+        // Add columns
         if (!empty($addedColumns)) {
             foreach ($addedColumns as $c) {
-                $this->pdo->exec('ALTER TABLE `'.$this->table.'` add `'.$c.'` TEXT NULL DEFAULT NULL;');
+                if (array_key_exists($c, $this->additionalFieldsDescription)) {
+                    $description = $this->additionalFieldsDescription[$c];
+                } else {
+                    $description = 'TEXT NULL DEFAULT NULL';
+                }
+                $this->pdo->exec('ALTER TABLE `'.$this->table.'` add `'.$c.'` '.$description.';');
             }
         }
 
-        //Prepare statement
+        // Prepare statement
         $columns = "";
         $fields = "";
         foreach ($this->additionalFields as $f) {
@@ -138,7 +146,7 @@ class MySQLHandler extends AbstractProcessingHandler
             $this->initialize();
         }
 
-        //'context' contains the array
+        // 'context' contains the array
         $contentArray = array_merge(array(
             'channel' => $record['channel'],
             'level' => $record['level'],
@@ -146,7 +154,7 @@ class MySQLHandler extends AbstractProcessingHandler
             'time' => $record['datetime']->format('U')
         ), $record['context']);
 
-        //Fill content array with "null" values if not provided
+        // Fill content array with "null" values if not provided
         $contentArray = $contentArray + array_combine(
             $this->additionalFields,
             array_fill(0, count($this->additionalFields), null)

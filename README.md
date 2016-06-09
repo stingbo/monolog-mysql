@@ -5,13 +5,13 @@ MySQL Handler for Monolog, which allows to store log messages in a MySQL Table.
 It can log text messages to a specific table, and creates the table automatically if it does not exist.
 The class further allows to dynamically add extra attributes, which are stored in a separate database field, and can be used for later analyzing and sorting.
 
-Homepage: http://www.d-herrmann.de/projects/monolog-mysql-handler/
+Homepage: https://packagist.org/packages/stingbo/monolog-mysql
 
 # Installation
 monolog-mysql is available via composer. Just add the following line to your required section in composer.json and do a `php composer.phar update`.
 
 ```
-"stingbo/monolog-mysql": ">1.0.0"
+"stingbo/monolog-mysql": "dev-master"
 ```
 
 # Usage
@@ -24,20 +24,21 @@ Just use it as any other Monolog Handler, push it to the stack of your Monolog L
 - **$bubble** _Defaults to true_
 
 # Examples
+You can see this file: ./example.php Or see this:
 Given that $pdo is your database instance, you could use the class as follows:
 
 ```php
-//Import class
+// Import class
 use MySQLHandler\MySQLHandler;
 
-//Create MysqlHandler
+// Create MysqlHandler
 $mySQLHandler = new MySQLHandler($pdo, "log", array('username', 'userid'), \Monolog\Logger::DEBUG);
 
-//Create logger
+// Create logger
 $logger = new \Monolog\Logger($context);
 $logger->pushHandler($mySQLHandler);
 
-//Now you can use the logger, and further attach additional information
+// Now you can use the logger, and further attach additional information
 $logger->addWarning("This is a great message, woohoo!", array('username'  => 'John Doe', 'userid'  => 245));
 ```
 
